@@ -40,7 +40,7 @@ This project requires the **Von Neumann Simulator** environment and **Windows OS
 
 ## How to Run
 
-Open the `VonNeumann.exe` application and the corresponding shell to the path of simuladorVN file. Do NOT use PowerShell to open the shell, instead use only CMD (type CMD in the Windows browser and go to the path whit `cd C:\path\of\simuladorVN`).
+Open the `VonNeumann.exe` application and the corresponding shell to the simuladorVN path. Do NOT use PowerShell to open the shell; instead use only CMD (type CMD in the Windows browser and go to the path whit `cd C:\path\of\simuladorVN`).
 
 ### 1. Connect the Screen and Keyboard on the simulator
 * **Reserve memory for peripherials:** Click on the **MEMORIA** button (bottom left), select the **Configurar** button and now remove the 32k module below by selecting the cross and clicking on it. Then click the **Aceptar** button.
@@ -61,8 +61,9 @@ Open the `VonNeumann.exe` application and the corresponding shell to the path of
   ```
 
 ### 3. Run
-* Navigate to `Archivo -> Abrir` and select the generated `ec2_pra2.eje` file.
+* Navigate to `Archivo -> Abrir` and select the generated `ec2_pra2.eje` file in the ~simuladorVN\src path.
 * Then navigate to `Ejecución -> Run`.
+* To stop the program navigare to `Ejecución -> Parar`.
 
 ## Technical Note (Language)
 The source code, variables names, internal comments and output console prints are written in **Catalan**, as it was an academic project for the University of Lleida (UdL) as part of the **Computer Science degree (Estructura de Computadors II, 2024-2025)**. This documentation is provided in English for universal portfolio visibility.
