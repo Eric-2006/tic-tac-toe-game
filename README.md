@@ -28,7 +28,7 @@ The game uses a specific numerical logic to determine the winner based on the th
 
 ## Technologies Used
 
-* **Language:** Assembly (ASM).
+* **Language:** Assembly.
 * **Architecture:** Von Neumann Simulator.
 * **Virtual Peripherials:** Virtual Screen and Keyboard of the Von Neumann Simulator.
 
