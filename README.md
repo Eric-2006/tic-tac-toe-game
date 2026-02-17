@@ -38,26 +38,25 @@ This project requires the **Von Neumann Simulator** environment and **Windows OS
 
 ## How to Run
 
-### 1. Compile (from simuladorVN file)
+### 1. Compile
+Within the simuladorVN file system, execute the following command:
   ```bash 
   type > Ensambla src/ec2_pra2.ens
   ```
-### 2 Connect the Screen and Keyboard
-* **Keyboard** Utilidades -> Entrada/Salida -> Conectar Teclado
+### 2. Connect the Screen and Keyboard
+* **Reserve memory for peripherics:** Click on the **MEMORIA** button (bottom left), select the **Configurar** button and now remove the 32k module below by selecting the cross and clicking on it.
+* **Keyboard:** Navigate to `Utilidades -> Entrada/Salida -> Conectar Teclado`.
   * Nombre P.: TECLAT
-  * Dir. Base 0B000h
-* **Screen** Utilidades -> Entrada/Salida -> Conectar Pantalla
+  * Dir. Base B000
+* **Screen:** Navigate to `Utilidades -> Entrada/Salida -> Conectar Pantalla`.
   * Nombre P.: PANTALLA
-  * Dir. Base 0A000h
+  * Dir. Base A000
 ### 3. Run
-* Archivo -> Abrir -> Now select the `ec2_pra2.eje` file
-
-### Technical Specifications
-* **Program Origin:** `100h`.
-* **Memory Map:** Keyboard at `0B000h` and Screen at `0A000h`.
+* Navigate to `Archivo -> Abrir` and select the generated `ec2_pra2.eje` file.
+* Then navigate to `Ejecución -> Run
 
 ## Technical Note (Language)
-The source code, variables, internal comments and output console prints are written in **Catalan**, as it was an academic project for the University of Lleida (UdL) as part of the **Computer Science degree (Estructura de Computadors II, 2024-2025)**. This documentation is provided in English for universal portfolio visibility.
+The source code, variables names, internal comments and output console prints are written in **Catalan**, as it was an academic project for the University of Lleida (UdL) as part of the **Computer Science degree (Estructura de Computadors II, 2024-2025)**. This documentation is provided in English for universal portfolio visibility.
 
 ## Credits
 The Von Neumann SImulator was developed in the University of Oviedo by Diego Alonso López under the direction of Manuel Campos López.
