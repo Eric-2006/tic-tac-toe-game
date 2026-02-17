@@ -1,0 +1,1777 @@
+;---------------------------------------------------------
+; Nom alumne: Eric Buenavida Crespo
+; Grup Pràctiques: Pralab1
+;---------------------------------------------------------
+PANTALLA EQU 0A000h
+TECLAT EQU 0B000h
+
+ORIGEN 100h
+
+INICIO ini
+.PILA 100
+.DATOS
+jugador1 VALOR ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '
+jugador2 VALOR ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '
+jugador1E VALOR 'J', 'U', 'G', 'A', 'D', 'O', 'R', '1', ' ', ' '
+jugador2E VALOR 'J', 'U', 'G', 'A', 'D', 'O', 'R', '2', ' ', ' '
+preguntarNom1 VALOR "NOM JUGADOR 1:                          "
+preguntarNom2 VALOR "NOM JUGADOR 2:                          "
+espai VALOR "  ---------    Escriu espai   per acabar"
+tauler VALOR "COL 123         F 1            I 2            L 3   "
+torn VALOR "TORN"
+escriuCOL VALOR "Escriu COL: "
+escriuFIL VALOR "Escriu FIL: "
+accioNoValida VALOR "Accio no valida"
+casellaOcupada VALOR "Casella ocupada"
+fila1 VALOR 0, 0, 0
+fila2 VALOR 0, 0, 0
+fila3 VALOR 0, 0, 0
+guanyador VALOR "GUANYADOR:"
+empat VALOR "EMPAT"
+tornarJugar VALOR "Vols         tornar a        jugar?           Y/N"
+adeu VALOR "FINS UNA ALTRA!"
+.CODIGO
+
+ini:
+MOVH R0, BYTEALTO DIRECCION neteja_pantalla
+MOVL R0, BYTEBAJO DIRECCION neteja_pantalla
+CALL R0
+MOVH R0, BYTEALTO DIRECCION neteja_teclat
+MOVL R0, BYTEBAJO DIRECCION neteja_teclat
+CALL R0
+MOVH R0, BYTEALTO DIRECCION neteja_noms
+MOVL R0, BYTEBAJO DIRECCION neteja_noms
+CALL R0
+MOVH R0, BYTEALTO DIRECCION neteja_files
+MOVL R0, BYTEBAJO DIRECCION neteja_files
+CALL R0
+MOVH R0, BYTEALTO DIRECCION noms_jugadors
+MOVL R0, BYTEBAJO DIRECCION noms_jugadors
+CALL R0
+MOVH R0, BYTEALTO DIRECCION pintar_tauler
+MOVL R0, BYTEBAJO DIRECCION pintar_tauler
+CALL R0
+MOVH R0, BYTEALTO DIRECCION torn_jugador1
+MOVL R0, BYTEBAJO DIRECCION torn_jugador1
+JMP R0
+
+neteja_noms:
+	PUSH R0
+	PUSH R1
+	PUSH R2
+	PUSH R3
+	
+	XOR R0, R0, R0
+	MOVL R0, 9					;Índex pel bucle
+	MOVH R1, BYTEALTO DIRECCION jugador1
+	MOVL R1, BYTEBAJO DIRECCION jugador1
+	MOVH R2, BYTEALTO DIRECCION jugador2
+	MOVL R2, BYTEBAJO DIRECCION jugador2
+	MOVH R3, 32h	; = espai en blanc
+	MOVL R3, 20h
+	
+	nn:
+		MOV [R1], R3 ;Omplim el vector jugador1 amb espais
+		MOV [R2], R3 ;Omplim el vector jugador2 amb espais
+		INC R1
+		INC R2
+		DEC R0
+		BRNZ nn
+	
+	POP R3
+	POP R2
+	POP R1
+	POP R0
+	RET
+
+neteja_files:
+	PUSH R0
+	PUSH R1
+	PUSH R2
+	PUSH R3
+	PUSH R4
+	
+	XOR R0, R0, R0
+	MOVL R0, 3					;Índex pel bucle
+	MOVH R1, BYTEALTO DIRECCION fila1
+	MOVL R1, BYTEBAJO DIRECCION fila1
+	MOVH R2, BYTEALTO DIRECCION fila2
+	MOVL R2, BYTEBAJO DIRECCION fila2
+	MOVH R3, BYTEALTO DIRECCION fila3
+	MOVL R3, BYTEBAJO DIRECCION fila3
+	XOR R4, R4, R4	; = 0
+	
+	nf:
+		MOV [R1], R4
+		MOV [R2], R4
+		MOV [R3], R4
+		INC R1
+		INC R2
+		INC R3
+		DEC R0
+		BRNZ nf
+	
+	POP R4
+	POP R3
+	POP R2
+	POP R1
+	POP R0
+	RET
+
+noms_jugadors:
+	PUSH R0
+	PUSH R1
+	PUSH R2
+	PUSH R3
+	PUSH R4
+	PUSH R5
+	PUSH R6
+	
+	MOVH R0, BYTEALTO PANTALLA
+	MOVL R0, BYTEBAJO PANTALLA
+	MOVH R1, BYTEALTO TECLAT
+	MOVL R1, BYTEBAJO TECLAT
+	MOVH R2, BYTEALTO DIRECCION preguntarNom1
+	MOVL R2, BYTEBAJO DIRECCION preguntarNom1
+	MOVH R3, BYTEALTO DIRECCION espai
+	MOVL R3, BYTEBAJO DIRECCION espai
+	XOR R4, R4, R4
+	XOR R6, R6, R6
+	
+	MOVL R6, 75
+	ADD R6, R0, R6				;R6: Pos ini de espai
+	
+	MOVL R4, 30					;R4: Pos ini de preguntarNom1
+	ADD R0, R0, R4
+	MOVL R4, 41					;Long de espai o pregNom1 + 1
+	
+	escriure_preguntarNom1:
+		DEC R4
+		BRZ preguntarNom1_acabat
+		
+		MOV R5, [R2]			;Adreça de preguntarNom1
+		MOVH R5, 00000111b		;Color de fons i lletra
+		MOV [R0], R5			;Ho afegim a la pantalla
+		MOV R5, [R3]			;Adreça de espai
+		MOVH R5, 00000111b		;Color de fons i lletra
+		MOV [R6], R5			;Ho afegim a la pantalla
+		INC R0
+		INC R2
+		INC R3
+		INC R6
+		JMP escriure_preguntarNom1
+	
+	preguntarNom1_acabat:
+	
+	MOVH R3, BYTEALTO DIRECCION jugador1
+	MOVL R3, BYTEBAJO DIRECCION jugador1
+	
+	MOVL R4, 8					;R4: Per anar pos ini jugador1
+	SUB R0, R0, R4
+	MOVL R4, 10					;R4: Long màx jugador1 + 1
+	MOVH R6, 32h	; = espai en blanc
+	MOVL R6, 20h
+	
+	escriure_jugador1:
+		DEC R4
+		BRZ jugador1_acabat
+		
+		PUSH R0
+		MOVH R0, BYTEALTO DIRECCION no_tecla
+		MOVL R0, BYTEBAJO DIRECCION no_tecla
+		CALL R0
+		POP R0
+		
+		MOV R5, [R1]			;R5: Tecla llegida
+		
+		COMP R6, R5
+		BRZ jugador1_acabat
+		
+		MOV [R3], R5			;jugador1[i] <-- tecla llegida
+		MOVH R5, 00111000b		;Color de fons i lletra
+		MOV [R0], R5			;Ho afegim a la pantalla
+		INC R0
+		INC R3
+		JMP escriure_jugador1
+
+	jugador1_acabat:
+	;Agafem el 1r element de jugador1 per saber si és un espai
+	MOVH R0, BYTEALTO DIRECCION jugador1
+	MOVL R0, BYTEBAJO DIRECCION jugador1
+	MOV R2, [R0]
+	COMP R2, R6
+	BRNZ continua1
+	CALL escriure_nom1
+	
+	continua1:
+	PUSH R0
+	MOVH R0, BYTEALTO DIRECCION pause
+	MOVL R0, BYTEBAJO DIRECCION pause
+	CALL R0
+	POP R0
+	PUSH R0
+	MOVH R0, BYTEALTO DIRECCION neteja_pantalla
+	MOVL R0, BYTEBAJO DIRECCION neteja_pantalla
+	CALL R0
+	POP R0
+	
+	MOVH R0, BYTEALTO PANTALLA
+	MOVL R0, BYTEBAJO PANTALLA
+	MOVH R2, BYTEALTO DIRECCION preguntarNom2
+	MOVL R2, BYTEBAJO DIRECCION preguntarNom2
+	MOVH R3, BYTEALTO DIRECCION espai
+	MOVL R3, BYTEBAJO DIRECCION espai
+	
+	XOR R4, R4, R4
+	XOR R6, R6, R6
+	
+	MOVL R6, 75
+	ADD R6, R0, R6				;R6: Pos ini de espai
+	
+	MOVL R4, 30					;R4: Pos ini de preguntarNom2
+	ADD R0, R0, R4
+	MOVL R4, 41					;Long espai o pregNom2 + 1
+	
+	escriure_preguntarNom2:
+		DEC R4
+		BRZ preguntarNom2_acabat
+		
+		MOV R5, [R2]			;Adreça de preguntarNom2
+		MOVH R5, 00000111b		;Color de fons i lletra
+		MOV [R0], R5			;Ho afegim a la pantalla
+		MOV R5, [R3]			;Adreça de espai
+		MOVH R5, 00000111b		;Color de fons i lletra
+		MOV [R6], R5			;Ho afegim a la pantalla
+		INC R0
+		INC R2
+		INC R3
+		INC R6
+		JMP escriure_preguntarNom2
+	
+	preguntarNom2_acabat:
+	
+	MOVH R3, BYTEALTO DIRECCION jugador2
+	MOVL R3, BYTEBAJO DIRECCION jugador2
+	
+	MOVL R4, 8					;R4: Per anar pos ini jugador2
+	SUB R0, R0, R4
+	MOVL R4, 10					;R4: Long màx jugador2 + 1
+	
+	escriure_jugador2:
+		DEC R4
+		BRZ jugador2_acabat
+		
+		PUSH R0
+		MOVH R0, BYTEALTO DIRECCION no_tecla
+		MOVL R0, BYTEBAJO DIRECCION no_tecla
+		CALL R0
+		POP R0
+		
+		MOV R5, [R1]			;R5: Tecla llegida
+		
+		MOVH R6, 32h	; = espai en blanc
+		MOVL R6, 20h
+		COMP R6, R5
+		BRZ jugador2_acabat
+		
+		MOV [R3], R5			;jugador2[i] <-- tecla llegida
+		MOVH R5, 00111000b		;Color de fons i lletra
+		MOV [R0], R5			;Ho afegim a la pantalla
+		INC R0
+		INC R3
+		JMP escriure_jugador2
+	
+	jugador2_acabat:
+	MOVH R0, BYTEALTO DIRECCION jugador2
+	MOVL R0, BYTEBAJO DIRECCION jugador2
+	MOV R2, [R0]
+	COMP R2, R6
+	BRNZ continua2
+	CALL escriure_nom2
+	
+	continua2:
+	PUSH R0
+	MOVH R0, BYTEALTO DIRECCION pause
+	MOVL R0, BYTEBAJO DIRECCION pause
+	CALL R0
+	POP R0
+	PUSH R0
+	MOVH R0, BYTEALTO DIRECCION neteja_pantalla
+	MOVL R0, BYTEBAJO DIRECCION neteja_pantalla
+	CALL R0
+	POP R0
+	
+	POP R6
+	POP R5
+	POP R4
+	POP R3
+	POP R2
+	POP R1
+	POP R0
+	RET
+
+escriure_nom1:
+	PUSH R0
+	PUSH R1
+	PUSH R2
+	PUSH R3
+	PUSH R4
+	
+	XOR R0, R0, R0
+	MOVL R0, 9					;Índex pel bucle
+	MOVH R1, BYTEALTO DIRECCION jugador1
+	MOVL R1, BYTEBAJO DIRECCION jugador1
+	MOVH R2, BYTEALTO DIRECCION jugador1E
+	MOVL R2, BYTEBAJO DIRECCION jugador1E
+	
+	en1:
+		MOV R3, [R2]			;Adreça de jugador1E
+		MOV [R1], R3
+		INC R1
+		INC R2
+		DEC R0
+		BRNZ en1
+	
+	POP R4
+	POP R3
+	POP R2
+	POP R1
+	POP R0
+	RET
+	
+escriure_nom2:
+	PUSH R0
+	PUSH R1
+	PUSH R2
+	PUSH R3
+	PUSH R4
+	
+	XOR R0, R0, R0
+	MOVL R0, 9
+	MOVH R1, BYTEALTO DIRECCION jugador2
+	MOVL R1, BYTEBAJO DIRECCION jugador2
+	MOVH R2, BYTEALTO DIRECCION jugador2E
+	MOVL R2, BYTEBAJO DIRECCION jugador2E
+	
+	en2:
+		MOV R3, [R2]			;Adreça de jugador2E
+		MOV [R1], R3
+		INC R1
+		INC R2
+		DEC R0
+		BRNZ en2
+	
+	POP R4
+	POP R3
+	POP R2
+	POP R1
+	POP R0
+	RET
+
+pintar_tauler:
+	PUSH R0
+	PUSH R1
+	PUSH R2
+	PUSH R3
+	
+	MOVH R0, BYTEALTO PANTALLA
+	MOVL R0, BYTEBAJO PANTALLA
+	MOVH R1, BYTEALTO DIRECCION tauler
+	MOVL R1, BYTEBAJO DIRECCION tauler
+	XOR R2, R2, R2
+	
+	MOVL R2, 47					;R2: Posició inicial de tauler
+	ADD R0, R0, R2
+	MOVL R2, 20					;R2: Índex pels bucles
+	
+	escriure_tauler1:
+		DEC R2
+		BRZ pas1
+		
+		MOV R3, [R1]			;Adreça de tauler
+		MOVH R3, 00000111b		;Color de fons i lletra
+		MOV [R0], R3			;Ho afegim a la pantalla
+		INC R0
+		INC R1
+		JMP escriure_tauler1
+	
+	pas1:
+	MOVL R2, 4
+	escriure_tauler2:
+		DEC R2
+		BRZ pas2
+		
+		MOV R3, [R1]			;Adreça de tauler
+		MOVH R3, 00110110b		;Color de fons i lletra
+		MOV [R0], R3			;Ho afegim a la pantalla
+		INC R0
+		INC R1
+		JMP escriure_tauler2
+	
+	pas2:
+	MOVL R2, 13
+	escriure_tauler3:
+		DEC R2
+		BRZ pas3
+		
+		MOV R3, [R1]			;Adreça de tauler
+		MOVH R3, 00000111b		;Color de fons i lletra
+		MOV [R0], R3			;Ho afegim a la pantalla
+		INC R0
+		INC R1
+		JMP escriure_tauler3
+	
+	pas3:
+	MOVL R2, 4
+	escriure_tauler4:
+		DEC R2
+		BRZ pas4
+		
+		MOV R3, [R1]			;Adreça de tauler
+		MOVH R3, 00110110b		;Color de fons i lletra
+		MOV [R0], R3			;Ho afegim a la pantalla
+		INC R0
+		INC R1
+		JMP escriure_tauler4
+	
+	pas4:
+	MOVL R2, 13
+	escriure_tauler5:
+		DEC R2
+		BRZ pas5
+		
+		MOV R3, [R1]			;Adreça de tauler
+		MOVH R3, 00000111b		;Color de fons i lletra
+		MOV [R0], R3			;Ho afegim a la pantalla
+		INC R0
+		INC R1
+		JMP escriure_tauler5
+	
+	pas5:
+	MOVL R2, 4
+	escriure_tauler6:
+		DEC R2
+		BRZ pas6
+		
+		MOV R3, [R1]			;Adreça de tauler
+		MOVH R3, 00110110b		;Color de fons i lletra
+		MOV [R0], R3			;Ho afegim a la pantalla
+		INC R0
+		INC R1
+		JMP escriure_tauler6
+	
+	pas6:
+	
+	POP R3
+	POP R2
+	POP R1
+	POP R0
+	RET
+
+escriure_torn:
+	PUSH R0
+	PUSH R1
+	PUSH R2
+	PUSH R3
+	
+	MOVH R0, BYTEALTO PANTALLA
+	MOVL R0, BYTEBAJO PANTALLA
+	MOVH R1, BYTEALTO DIRECCION torn
+	MOVL R1, BYTEBAJO DIRECCION torn
+	XOR R2, R2, R2
+	MOVL R2, 4					;Longitud de torn
+	
+	et:
+		MOV R3, [R1]			;Adreça de torn
+		MOVH R3, 00000111b		;Color de fons i lletra
+		MOV [R0], R3			;Ho afegim a la pantalla
+		INC R0
+		INC R1
+		DEC R2
+		BRNZ et
+	
+	POP R3
+	POP R2
+	POP R1
+	POP R0
+	RET	
+
+acc_no_valida:
+	PUSH R0
+	PUSH R1
+	PUSH R2
+	PUSH R3
+	
+	MOVH R0, BYTEALTO PANTALLA
+	MOVL R0, BYTEBAJO PANTALLA
+	MOVH R1, BYTEALTO DIRECCION accioNoValida
+	MOVL R1, BYTEBAJO DIRECCION accioNoValida
+	XOR R2, R2, R2
+	MOVL R2, 105				;Pos inicial de accioNoValida
+	ADD R0, R0, R2
+	MOVL R2, 15					;Longitud de accioNoValida
+	
+	anv:
+		MOV R3, [R1]			;Adreça de accioNoValida
+		MOVH R3, 00100111b		;Color de fons i lletra
+		MOV [R0], R3			;Ho afegim a la pantalla
+		INC R0
+		INC R1
+		DEC R2
+		BRNZ anv
+		
+	PUSH R0
+	MOVH R0, BYTEALTO DIRECCION pause
+	MOVL R0, BYTEBAJO DIRECCION pause
+	CALL R0
+	POP R0
+	MOVL R2, 15
+	SUB R0, R0, R2
+	
+	banv:
+		MOVH R3, 00h	; = espai en blanc
+		MOVL R3, 20h			
+		MOV [R0], R3			;Borrem el missatge
+		INC R0
+		INC R1
+		DEC R2
+		BRNZ banv
+	
+	PUSH R0
+	MOVH R0, BYTEALTO DIRECCION neteja_teclat
+	MOVL R0, BYTEBAJO DIRECCION neteja_teclat
+	CALL R0
+	POP R0
+	
+	POP R3
+	POP R2
+	POP R1
+	POP R0
+	RET	
+
+torn_jugador1:
+	PUSH R0
+	PUSH R1
+	PUSH R2
+	PUSH R3
+	PUSH R4
+	PUSH R5
+	PUSH R6
+	
+	CALL escriure_torn
+	
+	MOVH R0, BYTEALTO PANTALLA
+	MOVL R0, BYTEBAJO PANTALLA
+	MOVH R1, BYTEALTO TECLAT
+	MOVL R1, BYTEBAJO TECLAT
+	MOVH R2, BYTEALTO DIRECCION jugador1
+	MOVL R2, BYTEBAJO DIRECCION jugador1
+	XOR R3, R3, R3
+	MOVL R3, 5					;R3: Pos ini de jugador1
+	ADD R0, R0, R3
+	MOVH R3, 00h	; = espai en blanc
+	MOVL R3, 20h
+	
+	escriure_Tjugador1:
+		MOV R4, [R2]			;Adreça de jugador1
+		
+		COMP R3, R4
+		BRZ Tjugador1_acabat
+		
+		MOVH R4, 00000111b		;Color de fons i lletra
+		MOV [R0], R4			;Ho afegim a la pantalla
+		INC R0
+		INC R2
+		
+		JMP escriure_Tjugador1
+	
+	Tjugador1_acabat:
+	
+	MOVH R0, BYTEALTO PANTALLA	;PANTALLA = A000h
+	MOVL R0, BYTEBAJO PANTALLA
+	MOVH R2, BYTEALTO DIRECCION escriuFIL
+	MOVL R2, BYTEBAJO DIRECCION escriuFIL
+	XOR R3, R3, R3
+	MOVL R3, 15					;Pos inicial de escriuFIL
+	ADD R0, R0, R3
+	MOVL R3, 12					;Longitud de escriuFIL
+	
+	escriure_escriuFIL1:
+		MOV R4, [R2]			;Adreça de escriuFIL
+		MOVH R4, 00000111b		;Color de fons i lletra
+		MOV [R0], R4			;Ho afegim a la pantalla
+		INC R0
+		INC R2
+		DEC R3
+		BRNZ escriure_escriuFIL1
+	
+	PUSH R0
+	MOVH R0, BYTEALTO DIRECCION no_tecla
+	MOVL R0, BYTEBAJO DIRECCION no_tecla
+	CALL R0
+	POP R0
+	
+	MOV R3, [R1]				;R3: Tecla llegida
+	MOVH R3, 00h
+	
+	MOVH R4, 00h	; = 1
+	MOVL R4, 31h
+	MOVH R5, BYTEALTO DIRECCION fila1
+	MOVL R5, BYTEBAJO DIRECCION fila1
+	COMP R4, R3
+	BRZ escriure_fil1
+	MOVH R4, 00h	; = 2
+	MOVL R4, 32h
+	MOVH R5, BYTEALTO DIRECCION fila2
+	MOVL R5, BYTEBAJO DIRECCION fila2
+	COMP R4, R3
+	BRZ escriure_fil1
+	MOVH R4, 00h	; = 3
+	MOVL R4, 33h
+	MOVH R5, BYTEALTO DIRECCION fila3
+	MOVL R5, BYTEBAJO DIRECCION fila3
+	COMP R4, R3
+	BRZ escriure_fil1
+	CALL acc_no_valida
+	JMP -27						;Si tecla no vàlida, tornem a començar
+
+	escriure_fil1:
+		MOVH R4, 00111000b
+		MOV [R0], R4
+	
+	PUSH R0
+	MOVH R0, BYTEALTO DIRECCION pause
+	MOVL R0, BYTEBAJO DIRECCION pause
+	CALL R0
+	POP R0
+	
+	XOR R3, R3, R3
+	MOVL R3, 12
+	SUB R0, R0, R3				;PANTALLA = A00Fh
+	MOVL R3, 13					;Long de escriuFIL + fil
+	MOVH R4, 00000111b	; = espai en blanc
+	MOVL R4, 20h
+	borrar_escriuFIL1:
+		MOV [R0], R4
+		INC R0
+		DEC R3
+		BRNZ borrar_escriuFIL1
+	
+	MOVH R0, BYTEALTO PANTALLA	;PANTALLA = A000h
+	MOVL R0, BYTEBAJO PANTALLA
+	MOVH R2, BYTEALTO DIRECCION escriuCOL
+	MOVL R2, BYTEBAJO DIRECCION escriuCOL
+	XOR R3, R3, R3
+	MOVL R3, 15					;Pos inicial de escriuCOL
+	ADD R0, R0, R3
+	MOVL R3, 12					;Longitud de escriuCOL
+	
+	escriure_escriuCOL1:
+		MOV R4, [R2]			;Adreça de escriuCOL
+		MOVH R4, 00000111b		;Color de fons i lletra
+		MOV [R0], R4			;Ho afegim a la pantalla
+		INC R0
+		INC R2
+		DEC R3
+		BRNZ escriure_escriuCOL1
+	
+	PUSH R0
+	MOVH R0, BYTEALTO DIRECCION no_tecla
+	MOVL R0, BYTEBAJO DIRECCION no_tecla
+	CALL R0
+	POP R0
+	
+	MOV R3, [R1]				;R3: Tecla llegida
+	MOVH R3, 00h
+	
+	MOVH R4, 00h	; = 1
+	MOVL R4, 31h
+	XOR R6, R6, R6				;R6: Índex de la fila1
+	COMP R4, R3
+	BRZ escriure_col1
+	MOVH R4, 00h	; = 2
+	MOVL R4, 32h
+	XOR R6, R6, R6				;R6: Índex de la fila2
+	MOVL R6, 1
+	COMP R4, R3
+	BRZ escriure_col1
+	MOVH R4, 00h	; = 3
+	MOVL R4, 33h
+	XOR R6, R6, R6				;R6: Índex de la fila3
+	MOVL R6, 2
+	COMP R4, R3
+	BRZ escriure_col1
+	PUSH R0
+	MOVH R0, BYTEALTO DIRECCION acc_no_valida
+	MOVL R0, BYTEBAJO DIRECCION acc_no_valida
+	CALL R0
+	POP R0
+	JMP -30						;Si tecla no vàlida, tornem a començar
+	
+	escriure_col1:
+		MOVH R4, 00111000b
+		MOV [R0], R4
+	
+	PUSH R0
+	MOVH R0, BYTEALTO DIRECCION pause
+	MOVL R0, BYTEBAJO DIRECCION pause
+	CALL R0
+	POP R0
+	
+	XOR R3, R3, R3
+	MOVL R3, 12
+	SUB R0, R0, R3				;PANTALLA = A00Fh
+	MOVL R3, 13					;Long de escriuCOL + col
+	MOVH R4, 00000111b	; = espai en blanc
+	MOVL R4, 20h
+	borrar_escriuCOL1:
+		MOV [R0], R4
+		INC R0
+		DEC R3
+		BRNZ borrar_escriuCOL1
+	
+	ADD R5, R5, R6				;filaX[i][j]=filaX+Índexf
+	MOV R3, [R5]				;R3: Adreça de fila[i][j]
+	XOR R4, R4, R4	; = 0
+	;Comprovem si fila[i][j] té un 0, és a dir, si la casella està lliure
+	COMP R4, R3
+	BRZ continua3
+	CALL casella_ocupada
+	JMP Tjugador1_acabat
+	
+	continua3:
+	MOVH R4, 0	; = 1 --> Es tradueix com 'X' en pantalla
+	MOVL R4, 1
+	MOV [R5], R4
+	
+	MOVL R0, 66					;R0: Casella 1,1 de tauler
+	XOR R3, R3, R3
+	MOVL R3, 15					;Long d'una fila
+	
+	;fila1 = 020Eh / fila2 = 0211h / fila3 = 0214h
+	
+	MOVH R4, 02h
+	MOVL R4, 0Eh
+	ADD R4, R4, R6
+	COMP R4, R5
+	BRZ continua4
+	ADD R0, R0, R3				;Saltem a la seguent fila
+	MOVH R4, 02h
+	MOVL R4, 11h
+	ADD R4, R4, R6
+	COMP R4, R5
+	BRZ continua4
+	ADD R0, R0, R3				;Saltem a la seguent fila
+	MOVH R4, 02h
+	MOVL R4, 14h
+	ADD R4, R4, R6
+	COMP R4, R5
+	BRZ continua4
+	
+	continua4:
+	ADD R0, R0, R6				;Sumem Índexf a R0
+	
+	MOVH R4, 00110100b	; = X
+	MOVL R4, 58h
+	MOV [R0], R4				;Ho afegim a la pantalla
+	
+	PUSH R0
+	MOVH R0, BYTEALTO DIRECCION pause
+	MOVL R0, BYTEBAJO DIRECCION pause
+	CALL R0
+	POP R0
+	
+	MOVH R0, BYTEALTO PANTALLA	;PANTALLA = A000h
+	MOVL R0, BYTEBAJO PANTALLA
+	XOR R3, R3, R3
+	MOVL R3, 15					;Índex pel bucle
+	MOVH R4, 00000111b	; = espai en blanc
+	MOVL R4, 20h
+	borrar_Tjugador1:
+		MOV [R0], R4
+		INC R0
+		DEC R3
+		BRNZ borrar_Tjugador1
+	
+	PUSH R0
+	MOVH R0, BYTEALTO DIRECCION tres_en_ratlla
+	MOVL R0, BYTEBAJO DIRECCION tres_en_ratlla
+	CALL R0
+	POP R0
+	PUSH R0
+	MOVH R0, BYTEALTO DIRECCION tauler_ple
+	MOVL R0, BYTEBAJO DIRECCION tauler_ple
+	CALL R0
+	POP R0
+	
+	POP R6
+	POP R5
+	POP R4
+	POP R3
+	POP R2
+	POP R1
+	POP R0
+	JMP torn_jugador2
+
+casella_ocupada:
+	PUSH R0
+	PUSH R1
+	PUSH R2
+	PUSH R3
+	
+	MOVH R0, BYTEALTO PANTALLA
+	MOVL R0, BYTEBAJO PANTALLA
+	MOVH R1, BYTEALTO DIRECCION casellaOcupada
+	MOVL R1, BYTEBAJO DIRECCION casellaOcupada
+	XOR R2, R2, R2
+	MOVL R2, 105				;Pos inicial de casellaOcupada
+	ADD R0, R0, R2
+	MOVL R2, 15					;Longitud de casellaOcupada
+	
+	co:
+		MOV R3, [R1]			;Adreça de casellaOcupada
+		MOVH R3, 00100111b		;Color de fons i lletra
+		MOV [R0], R3			;Ho afegim a la pantalla
+		INC R0
+		INC R1
+		DEC R2
+		BRNZ co
+		
+	PUSH R0
+	MOVH R0, BYTEALTO DIRECCION pause
+	MOVL R0, BYTEBAJO DIRECCION pause
+	CALL R0
+	POP R0
+	MOVL R2, 15
+	SUB R0, R0, R2
+	
+	bco:
+		MOVH R3, 00h	; = espai en blanc
+		MOVL R3, 20h			
+		MOV [R0], R3			;Borrem el missatge
+		INC R0
+		INC R1
+		DEC R2
+		BRNZ bco
+	
+	PUSH R0
+	MOVH R0, BYTEALTO DIRECCION neteja_teclat
+	MOVL R0, BYTEBAJO DIRECCION neteja_teclat
+	CALL R0
+	POP R0
+	
+	POP R3
+	POP R2
+	POP R1
+	POP R0
+	RET
+
+torn_jugador2:
+	PUSH R0
+	PUSH R1
+	PUSH R2
+	PUSH R3
+	PUSH R4
+	PUSH R5
+	PUSH R6
+	
+	PUSH R0
+	MOVH R0, BYTEALTO DIRECCION escriure_torn
+	MOVL R0, BYTEBAJO DIRECCION escriure_torn
+	CALL R0
+	POP R0
+	
+	MOVH R0, BYTEALTO PANTALLA
+	MOVL R0, BYTEBAJO PANTALLA
+	MOVH R1, BYTEALTO TECLAT
+	MOVL R1, BYTEBAJO TECLAT
+	MOVH R2, BYTEALTO DIRECCION jugador2
+	MOVL R2, BYTEBAJO DIRECCION jugador2
+	XOR R3, R3, R3
+	MOVL R3, 5					;R3: Pos ini de jugador2
+	ADD R0, R0, R3
+	MOVH R3, 00h	; = espai en blanc
+	MOVL R3, 20h
+	
+	escriure_Tjugador2:
+		MOV R4, [R2]			;Adreça de jugador2
+		
+		COMP R3, R4
+		BRZ Tjugador2_acabat
+		
+		MOVH R4, 00000111b		;Color de fons i lletra
+		MOV [R0], R4			;Ho afegim a la pantalla
+		INC R0
+		INC R2
+		
+		JMP escriure_Tjugador2
+	
+	Tjugador2_acabat:
+	
+	MOVH R0, BYTEALTO PANTALLA	;PANTALLA = A000h
+	MOVL R0, BYTEBAJO PANTALLA
+	MOVH R2, BYTEALTO DIRECCION escriuFIL
+	MOVL R2, BYTEBAJO DIRECCION escriuFIL
+	XOR R3, R3, R3
+	MOVL R3, 15					;Pos inicial de escriuFIL
+	ADD R0, R0, R3
+	MOVL R3, 12					;Longitud de escriuFIL
+	
+	escriure_escriuFIL2:
+		MOV R4, [R2]			;Adreça de escriuFIL
+		MOVH R4, 00000111b		;Color de fons i lletra
+		MOV [R0], R4			;Ho afegim a la pantalla
+		INC R0
+		INC R2
+		DEC R3
+		BRNZ escriure_escriuFIL2
+	
+	PUSH R0
+	MOVH R0, BYTEALTO DIRECCION no_tecla
+	MOVL R0, BYTEBAJO DIRECCION no_tecla
+	CALL R0
+	POP R0
+	
+	MOV R3, [R1]				;R3: Tecla llegida
+	MOVH R3, 00h
+	
+	MOVH R4, 00h	; = 1
+	MOVL R4, 31h
+	MOVH R5, BYTEALTO DIRECCION fila1
+	MOVL R5, BYTEBAJO DIRECCION fila1
+	COMP R4, R3
+	BRZ escriure_fil2
+	MOVH R4, 00h	; = 2
+	MOVL R4, 32h
+	MOVH R5, BYTEALTO DIRECCION fila2
+	MOVL R5, BYTEBAJO DIRECCION fila2
+	COMP R4, R3
+	BRZ escriure_fil2
+	MOVH R4, 00h	; = 3
+	MOVL R4, 33h
+	MOVH R5, BYTEALTO DIRECCION fila3
+	MOVL R5, BYTEBAJO DIRECCION fila3
+	COMP R4, R3
+	BRZ escriure_fil2
+	PUSH R0
+	MOVH R0, BYTEALTO DIRECCION acc_no_valida
+	MOVL R0, BYTEBAJO DIRECCION acc_no_valida
+	CALL R0
+	POP R0
+	JMP -31						;Si tecla no vàlida, tornem a començar
+
+	escriure_fil2:
+		MOVH R4, 00111000b
+		MOV [R0], R4
+	
+	PUSH R0
+	MOVH R0, BYTEALTO DIRECCION pause
+	MOVL R0, BYTEBAJO DIRECCION pause
+	CALL R0
+	POP R0
+	
+	XOR R3, R3, R3
+	MOVL R3, 12
+	SUB R0, R0, R3				;PANTALLA = A00Fh
+	MOVL R3, 13					;Long de escriuFIL + fil
+	MOVH R4, 00000111b	; = espai en blanc
+	MOVL R4, 20h
+	borrar_escriuFIL2:
+		MOV [R0], R4
+		INC R0
+		DEC R3
+		BRNZ borrar_escriuFIL2
+	
+	MOVH R0, BYTEALTO PANTALLA	;PANTALLA = A000h
+	MOVL R0, BYTEBAJO PANTALLA
+	MOVH R2, BYTEALTO DIRECCION escriuCOL
+	MOVL R2, BYTEBAJO DIRECCION escriuCOL
+	XOR R3, R3, R3
+	MOVL R3, 15					;Pos inicial de escriuCOL
+	ADD R0, R0, R3
+	MOVL R3, 12					;Longitud de escriuCOL
+	
+	escriure_escriuCOL2:
+		MOV R4, [R2]			;Adreça de escriuFIL
+		MOVH R4, 00000111b		;Color de fons i lletra
+		MOV [R0], R4			;Ho afegim a la pantalla
+		INC R0
+		INC R2
+		DEC R3
+		BRNZ escriure_escriuCOL2
+	
+	PUSH R0
+	MOVH R0, BYTEALTO DIRECCION no_tecla
+	MOVL R0, BYTEBAJO DIRECCION no_tecla
+	CALL R0
+	POP R0
+	
+	MOV R3, [R1]				;R3: Tecla llegida
+	MOVH R3, 00h
+	
+	MOVH R4, 00h	; = 1
+	MOVL R4, 31h
+	XOR R6, R6, R6				;R6: Índex de la fila1
+	COMP R4, R3
+	BRZ escriure_col2
+	MOVH R4, 00h	; = 2
+	MOVL R4, 32h
+	XOR R6, R6, R6				;R6: Índex de la fila2
+	MOVL R6, 1
+	COMP R4, R3
+	BRZ escriure_col2
+	MOVH R4, 00h	; = 3
+	MOVL R4, 33h
+	XOR R6, R6, R6				;R6: Índex de la fila3
+	MOVL R6, 2
+	COMP R4, R3
+	BRZ escriure_col2
+	PUSH R0
+	MOVH R0, BYTEALTO DIRECCION acc_no_valida
+	MOVL R0, BYTEBAJO DIRECCION acc_no_valida
+	CALL R0
+	POP R0
+	JMP -30						;Si tecla no vàlida, tornem a començar
+	
+	torna_Tjugador2_acabat:
+	JMP Tjugador2_acabat
+	
+	escriure_col2:
+		MOVH R4, 00111000b
+		MOV [R0], R4
+	
+	PUSH R0
+	MOVH R0, BYTEALTO DIRECCION pause
+	MOVL R0, BYTEBAJO DIRECCION pause
+	CALL R0
+	POP R0
+	
+	XOR R3, R3, R3
+	MOVL R3, 12
+	SUB R0, R0, R3				;PANTALLA = A00Fh
+	MOVL R3, 13					;Long de escriuCOL + col
+	MOVH R4, 00000111b	; = espai en blanc
+	MOVL R4, 20h
+	borrar_escriuCOL2:
+		MOV [R0], R4
+		INC R0
+		DEC R3
+		BRNZ borrar_escriuCOL2
+	
+	ADD R5, R5, R6				;filaX[i][j]=filaX+Índexf
+	MOV R3, [R5]				;R3: Adreça de fila[i][j]
+	XOR R4, R4, R4	; = 0
+	;Comprovem si fila[i][j] té un 0, és a dir, si la casella està lliure
+	COMP R4, R3
+	BRZ continua5
+	PUSH R0
+	MOVH R0, BYTEALTO DIRECCION casella_ocupada
+	MOVL R0, BYTEBAJO DIRECCION casella_ocupada
+	CALL R0
+	POP R0
+	JMP torna_Tjugador2_acabat
+	
+	continua5:
+	MOVH R4, 0	; = 5 --> Es tradueix com 'O' en pantalla
+	MOVL R4, 5
+	MOV [R5], R4
+	
+	MOVL R0, 66					;R0:Casella 1,1 de tauler
+	XOR R3, R3, R3
+	MOVL R3, 15					;Long d'una fila
+	
+	;fila1 = 020Eh / fila2 = 0211h / fila3 = 0214h
+	
+	MOVH R4, 02h
+	MOVL R4, 0Eh
+	ADD R4, R4, R6
+	COMP R4, R5
+	BRZ continua6
+	ADD R0, R0, R3				;Saltem a la seguent fila
+	MOVH R4, 02h
+	MOVL R4, 11h
+	ADD R4, R4, R6
+	COMP R4, R5
+	BRZ continua6
+	ADD R0, R0, R3				;Saltem a la seguent fila
+	MOVH R4, 02h
+	MOVL R4, 14h
+	ADD R4, R4, R6
+	COMP R4, R5
+	BRZ continua6
+	
+	continua6:
+	ADD R0, R0, R6				;Sumem Índexf a R0
+	
+	MOVH R4, 00110100b	; = O
+	MOVL R4, 4Fh
+	MOV [R0], R4				;Ho afegim a la pantalla
+	
+	PUSH R0
+	MOVH R0, BYTEALTO DIRECCION pause
+	MOVL R0, BYTEBAJO DIRECCION pause
+	CALL R0
+	POP R0
+	
+	MOVH R0, BYTEALTO PANTALLA	;PANTALLA = A000h
+	MOVL R0, BYTEBAJO PANTALLA
+	XOR R3, R3, R3
+	MOVL R3, 15					;Índex pel bucle
+	MOVH R4, 00000111b	; = espai en blanc
+	MOVL R4, 20h
+	borrar_Tjugador2:
+		MOV [R0], R4
+		INC R0
+		DEC R3
+		BRNZ borrar_Tjugador2
+	
+	CALL tres_en_ratlla
+	PUSH R0
+	MOVH R0, BYTEALTO DIRECCION tauler_ple
+	MOVL R0, BYTEBAJO DIRECCION tauler_ple
+	CALL R0
+	POP R0
+	
+	POP R6
+	POP R5
+	POP R4
+	POP R3
+	POP R2
+	POP R1
+	POP R0
+	JMP R0	;R0 segueix sent l'adreça de torn_jugador1
+	
+	
+tres_en_ratlla:
+	PUSH R0
+	PUSH R1
+	PUSH R2
+	PUSH R3
+	PUSH R4
+	PUSH R5
+	
+	XOR R0, R0, R0
+	MOVL R0, 3					;Índex pels bucles
+	MOVH R1, BYTEALTO DIRECCION fila1
+	MOVL R1, BYTEBAJO DIRECCION fila1
+	MOVH R2, BYTEALTO DIRECCION fila2
+	MOVL R2, BYTEBAJO DIRECCION fila2
+	MOVH R3, BYTEALTO DIRECCION fila3
+	MOVL R3, BYTEBAJO DIRECCION fila3
+	XOR R5, R5, R5
+	
+	suma1:
+		MOV R4, [R1]			;Adreça fila1
+		ADD R5, R5, R4			;R5: Suma
+		INC R1
+		DEC R0
+		BRNZ suma1
+	
+	XOR R4, R4, R4
+	MOVL R4, 3
+	COMP R4, R5
+	BRZ gj1
+	MOVL R4, 15
+	COMP R4, R5
+	BRZ gj2
+	
+	MOVL R0, 3
+	XOR R5, R5, R5
+	
+	suma2:
+		MOV R4, [R2]			;Adreça fila2
+		ADD R5, R5, R4			;R5: Suma
+		INC R2
+		DEC R0
+		BRNZ suma2
+	
+	XOR R4, R4, R4
+	MOVL R4, 3
+	COMP R4, R5
+	BRZ gj1
+	MOVL R4, 15
+	COMP R4, R5
+	BRZ gj2
+	
+	MOVL R0, 3
+	XOR R5, R5, R5
+	
+	suma3:
+		MOV R4, [R3]			;Adreça fila3
+		ADD R5, R5, R4			;R5: Suma
+		INC R3
+		DEC R0
+		BRNZ suma3
+	
+	XOR R4, R4, R4
+	MOVL R4, 3
+	COMP R4, R5
+	BRZ gj1
+	MOVL R4, 15
+	COMP R4, R5
+	BRZ gj2
+	
+	MOVL R0, 3
+	XOR R5, R5, R5
+	;i, j, k són els índex de fila1, fila2 i fila3 respectivament
+	
+	suma4:
+		SUB R1, R1, R0			;i = i - 2
+		MOV R4, [R1]			;Adreça fila1[1]
+		ADD R5, R5, R4			;R5: Suma
+		SUB R2, R2, R0			;j = j - 2
+		MOV R4, [R2]			;Adreça fila2[1]
+		ADD R5, R5, R4
+		SUB R3, R3, R0			;k = k - 2
+		MOV R4, [R3]			;Adreça fila3[1]
+		ADD R5, R5, R4
+	
+	XOR R4, R4, R4
+	MOVL R4, 3
+	COMP R4, R5
+	BRZ gj1
+	MOVL R4, 15
+	COMP R4, R5
+	BRZ gj2
+	
+	MOVL R0, 1
+	XOR R5, R5, R5
+	
+	suma5:
+		ADD R1, R1, R0			;i++		
+		MOV R4, [R1]			;Adreça fila1[2]
+		ADD R5, R5, R4			;R5: Suma
+		ADD R2, R2, R0			;j++
+		MOV R4, [R2]			;Adreça fila2[2]
+		ADD R5, R5, R4
+		ADD R3, R3, R0			;k++
+		MOV R4, [R3]			;Adreça fila3[2]
+		ADD R5, R5, R4
+	
+	XOR R4, R4, R4
+	MOVL R4, 3
+	COMP R4, R5
+	BRZ gj1
+	MOVL R4, 15
+	COMP R4, R5
+	BRZ gj2
+	
+	XOR R5, R5, R5
+	
+	suma6:
+		ADD R1, R1, R0			;i++
+		MOV R4, [R1]			;Adreça fila1[3]
+		ADD R5, R5, R4			;R5: Suma
+		ADD R2, R2, R0			;j++
+		MOV R4, [R2]			;Adreça fila2[3]
+		ADD R5, R5, R4			;k++
+		ADD R3, R3, R0
+		MOV R4, [R3]			;Adreça fila3[3]
+		ADD R5, R5, R4
+	
+	XOR R4, R4, R4
+	MOVL R4, 3
+	COMP R4, R5
+	BRZ gj1
+	MOVL R4, 15
+	COMP R4, R5
+	BRZ gj2
+	
+	MOVL R0, 2
+	SUB R1, R1, R0
+	MOVL R0, 1
+	SUB R2, R2, R0
+	;Al operar obtenim: fila1[1], fila2[2], fila3[3] per poder comprovar la 1a diagonal
+	XOR R5, R5, R5
+	
+	suma7:
+		MOV R4, [R1]			;Adreça fila1[3]
+		ADD R5, R5, R4			;R5: Suma
+		MOV R4, [R2]			;Adreça fila2[3]
+		ADD R5, R5, R4			;k++
+		MOV R4, [R3]			;Adreça fila3[3]
+		ADD R5, R5, R4
+	
+	XOR R4, R4, R4
+	MOVL R4, 3
+	COMP R4, R5
+	BRZ gj1
+	MOVL R4, 15
+	COMP R4, R5
+	BRZ gj2
+	
+	MOVL R0, 2
+	ADD R1, R1, R0
+	MOVL R0, 2
+	SUB R3, R3, R0
+	;Al operar obtenim: fila1[3], fila2[2], fila3[1] per poder comprovar 2a 1a diagonal
+	XOR R5, R5, R5
+	
+	suma8:
+		MOV R4, [R1]			;Adreça fila1[3]
+		ADD R5, R5, R4			;R5: Suma
+		MOV R4, [R2]			;Adreça fila2[3]
+		ADD R5, R5, R4			;k++
+		MOV R4, [R3]			;Adreça fila3[3]
+		ADD R5, R5, R4
+	
+	XOR R4, R4, R4
+	MOVL R4, 3
+	COMP R4, R5
+	BRZ gj1
+	MOVL R4, 15
+	COMP R4, R5
+	BRZ gj2
+	
+	JMP 2
+	
+	gj1:
+	JMP guanya_jugador1
+	
+	gj2:
+	JMP guanya_jugador2
+	
+	POP R5
+	POP R4
+	POP R3
+	POP R2
+	POP R1
+	POP R0
+	RET
+
+guanya_jugador1:
+	PUSH R0
+	PUSH R1
+	PUSH R2
+	PUSH R3
+	PUSH R4
+	
+	MOVH R0, BYTEALTO PANTALLA
+	MOVL R0, BYTEBAJO PANTALLA
+	MOVH R1, BYTEALTO DIRECCION guanyador
+	MOVL R1, BYTEBAJO DIRECCION guanyador
+	XOR R2, R2, R2
+	MOVL R2, 32					;Pos ini de guanyador
+	ADD R0, R0, R2
+	MOVL R2, 10					;Longitud de guanyador
+	
+	PUSH R0
+	MOVH R0, BYTEALTO DIRECCION pause
+	MOVL R0, BYTEBAJO DIRECCION pause
+	CALL R0
+	POP R0
+	PUSH R0
+	MOVH R0, BYTEALTO DIRECCION neteja_pantalla
+	MOVL R0, BYTEBAJO DIRECCION neteja_pantalla
+	CALL R0
+	POP R0
+	
+	escriure_guanyador1:
+		MOV R3, [R1]			;Adreça de guanyador
+		MOVH R3, 00000111b		;Color de fons i lletra
+		MOV [R0], R3			;Ho afegim a la pantalla
+		INC R0
+		INC R1
+		DEC R2
+		BRNZ escriure_guanyador1
+	
+	MOVH R1, BYTEALTO DIRECCION jugador1
+	MOVL R1, BYTEBAJO DIRECCION jugador1
+	MOVL R2, 20
+	ADD R0, R0, R2
+	MOVL R2, 10					;Long màx de jugador1 + 1
+	MOVH R4, 00h	; = espai en blanc
+	MOVL R4, 20h
+	
+	escriure_Gjugador1:
+		MOV R3, [R1]			;Adreça de jugador1
+		
+		COMP R3, R4
+		BRZ Gjugador1_acabat
+		
+		MOVH R3, 00000111b		;Color de fons i lletra
+		MOV [R0], R3			;Ho afegim a la pantalla
+		INC R0
+		INC R1
+		
+		JMP escriure_Gjugador1
+	
+	Gjugador1_acabat:
+	
+	POP R4
+	POP R3
+	POP R2
+	POP R1
+	POP R0
+	MOVH R1, BYTEALTO DIRECCION vols_tornar_a_jugar
+	MOVL R1, BYTEBAJO DIRECCION vols_tornar_a_jugar
+	JMP R1 
+	
+guanya_jugador2:
+	PUSH R0
+	PUSH R1
+	PUSH R2
+	PUSH R3
+	PUSH R4
+	
+	MOVH R0, BYTEALTO PANTALLA
+	MOVL R0, BYTEBAJO PANTALLA
+	MOVH R1, BYTEALTO DIRECCION guanyador
+	MOVL R1, BYTEBAJO DIRECCION guanyador
+	XOR R2, R2, R2
+	MOVL R2, 32					;Pos ini de guanyador
+	ADD R0, R0, R2
+	MOVL R2, 10					;Longitud de guanyador
+	
+	PUSH R0
+	MOVH R0, BYTEALTO DIRECCION pause
+	MOVL R0, BYTEBAJO DIRECCION pause
+	CALL R0
+	POP R0
+	PUSH R0
+	MOVH R0, BYTEALTO DIRECCION neteja_pantalla
+	MOVL R0, BYTEBAJO DIRECCION neteja_pantalla
+	CALL R0
+	POP R0
+	
+	escriure_guanyador2:
+		MOV R3, [R1]			;Adreça de guanyador
+		MOVH R3, 00000111b		;Color de fons i lletra
+		MOV [R0], R3			;Ho afegim a la pantalla
+		INC R0
+		INC R1
+		DEC R2
+		BRNZ escriure_guanyador2
+	
+	MOVH R1, BYTEALTO DIRECCION jugador2
+	MOVL R1, BYTEBAJO DIRECCION jugador2
+	MOVL R2, 20
+	ADD R0, R0, R2
+	MOVL R2, 10					;Long màx de jugador2 + 1
+	MOVH R4, 00h	; = espai en blanc
+	MOVL R4, 20h
+	
+	escriure_Gjugador2:
+		MOV R3, [R1]			;Adreça de jugador2
+		
+		COMP R3, R4
+		BRZ Gjugador2_acabat
+		
+		MOVH R3, 00000111b		;Color de fons i lletra
+		MOV [R0], R3			;Ho afegim a la pantalla
+		INC R0
+		INC R1
+		
+		JMP escriure_Gjugador2
+	
+	Gjugador2_acabat:
+	
+	POP R4
+	POP R3
+	POP R2
+	POP R1
+	POP R0
+	JMP vols_tornar_a_jugar 
+
+tauler_ple:
+	PUSH R0
+	PUSH R1
+	PUSH R2
+	PUSH R3
+	PUSH R4
+	PUSH R5
+	
+	XOR R0, R0, R0
+	MOVL R0, 3					;Índex pel bucle
+	MOVH R1, BYTEALTO DIRECCION fila1
+	MOVL R1, BYTEBAJO DIRECCION fila1
+	MOVH R2, BYTEALTO DIRECCION fila2
+	MOVL R2, BYTEBAJO DIRECCION fila2
+	MOVH R3, BYTEALTO DIRECCION fila3
+	MOVL R3, BYTEBAJO DIRECCION fila3
+	XOR R5, R5, R5
+	
+	llegir_fila1:
+		MOV R4, [R1]
+		COMP R4, R5
+		BRZ tauler_no_ple
+		INC R1
+		DEC R0
+		BRNZ llegir_fila1
+	
+	MOVL R0, 3					;Índex pel bucle
+	
+	llegir_fila2:
+		MOV R4, [R2]
+		COMP R4, R5
+		BRZ tauler_no_ple
+		INC R2
+		DEC R0
+		BRNZ llegir_fila2
+	
+	MOVL R0, 3					;Índex pel bucle
+	
+	llegir_fila3:
+		MOV R4, [R3]
+		COMP R4, R5
+		BRZ tauler_no_ple
+		INC R3
+		DEC R0
+		BRNZ llegir_fila3
+	
+	JMP joc_empatat
+	
+	tauler_no_ple:
+	
+	POP R5
+	POP R4
+	POP R3
+	POP R2
+	POP R1
+	POP R0
+	RET
+
+joc_empatat:
+	PUSH R0
+	PUSH R1
+	PUSH R2
+	PUSH R3
+	PUSH R4
+	
+	MOVH R0, BYTEALTO PANTALLA
+	MOVL R0, BYTEBAJO PANTALLA
+	MOVH R1, BYTEALTO DIRECCION empat
+	MOVL R1, BYTEBAJO DIRECCION empat
+	XOR R2, R2, R2
+	MOVL R2, 50					;Pos inicial de empat
+	ADD R0, R0, R2
+	MOVL R2, 5					;Longitud de empat
+	
+	PUSH R0
+	MOVH R0, BYTEALTO DIRECCION pause
+	MOVL R0, BYTEBAJO DIRECCION pause
+	CALL R0
+	POP R0
+	PUSH R0
+	MOVH R0, BYTEALTO DIRECCION neteja_pantalla
+	MOVL R0, BYTEBAJO DIRECCION neteja_pantalla
+	CALL R0
+	POP R0
+	
+	escriure_empat:
+		MOV R3, [R1]			;Adreça de empat
+		MOVH R3, 00000111b		;Color de fons i lletra
+		MOV [R0], R3			;Ho afegim a la pantalla
+		INC R0
+		INC R1
+		DEC R2
+		BRNZ escriure_empat
+	
+	POP R4
+	POP R3
+	POP R2
+	POP R1
+	POP R0
+	JMP vols_tornar_a_jugar
+
+no_tecla:
+	PUSH R0
+	PUSH R1
+	PUSH R2
+	PUSH R3
+	
+	MOVH R0, BYTEALTO TECLAT
+	MOVL R0, BYTEBAJO TECLAT
+	MOV R1, R0
+	INC R1
+	MOVH R2, 00000001b
+	MOVL R2, 00000000b
+	
+	nt:
+		MOV R3, [R1]
+		MOVL R3, 00000000b
+		COMP R3, R2
+		BRNZ nt
+	
+	POP R3
+	POP R2
+	POP R1
+	POP R0
+	RET
+
+vols_tornar_a_jugar:
+	;Com s'ha acabat el joc, podem posar tots els registres a 0 i fer-los servir aquí perquè no els tornarem a utilitzar
+	XOR R0, R0, R0
+	XOR R1, R1, R1
+	XOR R2, R2, R2
+	XOR R3, R3, R3
+	XOR R4, R4, R4
+	XOR R5, R5, R5
+	
+	MOVH R0, BYTEALTO PANTALLA
+	MOVL R0, BYTEBAJO PANTALLA
+	MOVH R1, BYTEALTO DIRECCION tornarJugar
+	MOVL R1, BYTEBAJO DIRECCION tornarJugar
+	
+	CALL pause
+	CALL neteja_pantalla
+	
+	MOVL R5, 35					;R5: Pos inicial de tornarJugar
+	ADD R0, R0, R5
+	MOVL R5, 49					;R5: Long de tornarJugar
+	
+	escriure_tornarJugar:
+		MOV R2, [R1]			;R2: Adreça tornarJugar
+		MOVH R2, 00000111b		;Color de fons i lletra
+		MOV [R0], R2			;Ho afegim a la pantalla
+		INC R0
+		INC R1
+		DEC R5
+		BRNZ escriure_tornarJugar
+	
+	XOR R5, R5, R5
+	MOVH R5, BYTEALTO TECLAT
+	MOVL R5, BYTEBAJO TECLAT
+	
+	CALL no_tecla
+	
+	MOV R3, [R5]			;R3: Tecla llegida
+	
+	MOVH R4, 0Fh 	; = Y
+	MOVL R4, 59h
+	COMP R4, R3
+	BRZ inici				;Volem tornar a jugar-->inici
+	MOVH R4, 0Fh 	; = y
+	MOVL R4, 79h
+	COMP R4, R3
+	BRZ inici				;Volem tornar a jugar-->inici
+	
+	MOVH R4, 24h 	; = N
+	MOVL R4, 4Eh
+	COMP R4, R3
+	BRZ fi					;No volem tornar a jugar-->fi
+	MOVH R4, 24h 	; = n
+	MOVL R4, 6Eh
+	COMP R4, R3
+	BRZ fi					;No volem tornar a jugar-->fi
+	
+	JMP -18					;Si tecla no vàlida, tornem a començar
+	
+inici:
+	XOR R0, R0, R0
+	XOR R1, R1, R1
+	XOR R2, R2, R2
+	
+	MOVH R0, BYTEALTO PANTALLA
+	MOVL R0, BYTEBAJO PANTALLA
+	
+	MOVH R1, 00111000b
+	MOVL R1, 'Y'
+	
+	MOVL R2, 81
+	ADD R2, R2, R0
+	MOV [R2], R1
+	
+	CALL pause
+	
+	;Inicialitzem tots els registres a 0 per no tenir possibles errors al iniciar de nou el programa
+	XOR R0, R0, R0
+	XOR R1, R1, R1
+	XOR R2, R2, R2
+	XOR R3, R3, R3
+	XOR R4, R4, R4
+	XOR R5, R5, R5
+	XOR R6, R6, R6
+	
+	PUSH R0
+	MOVH R0, BYTEALTO DIRECCION ini
+	MOVL R0, BYTEBAJO DIRECCION ini
+	CALL R0
+	POP R0
+
+pause:
+	PUSH R0
+	
+	XOR R0, R0, R0
+	MOVL R0, 30
+	;El bucle tarda un temps en acabar. Serveix com a pausa
+	bucle:
+		DEC R0
+		BRNZ bucle
+	
+	POP R0
+	RET
+
+neteja_teclat:
+	PUSH R0
+	PUSH R1
+	
+	MOVH R0,BYTEALTO TECLAT
+	MOVL R0,BYTEBAJO TECLAT
+	INC R0
+	MOVH R1,00h
+	MOVL R1,00000100b
+	
+	MOV [R0],R1
+	
+	POP R1
+	POP R0
+	RET
+
+neteja_pantalla:
+	PUSH R0
+	PUSH R1
+	
+	MOVH R0, BYTEALTO PANTALLA
+	MOVL R0, BYTEBAJO PANTALLA
+	MOVH R1, 00h
+	MOVL R1, 120
+	
+	ADD R0, R0, R1
+	MOVH R1, 11111111b
+	MOVL R1, 11111111b
+	MOV [R0], R1
+	
+	POP R1
+	POP R0
+	RET
+
+fi:
+	XOR R0, R0, R0
+	XOR R1, R1, R1
+	XOR R2, R2, R2
+	XOR R3, R3, R3
+	
+	MOVH R0, BYTEALTO PANTALLA
+	MOVL R0, BYTEBAJO PANTALLA
+	
+	MOVH R1, 00111000b
+	MOVL R1, 'N'
+	
+	MOVL R3, 83
+	ADD R3, R3, R0
+	MOV [R3], R1
+	
+	CALL pause
+	CALL neteja_pantalla
+	
+	MOVH R1, BYTEALTO DIRECCION adeu
+	MOVL R1, BYTEBAJO DIRECCION adeu
+	
+	XOR R3, R3, R3
+	MOVL R3, 45					;R3: Posició inicial de adeu
+	ADD R0, R0, R3
+	
+	MOVL R3, 15					;R3: Longitud de adeu
+	
+	escriure_adeu:		
+		MOV R2, [R1]			;R2: Adreça de adeu
+		MOVH R2, 00000111b		;Color de fons i lletra
+		MOV [R0], R2			;Ho afegim a la pantalla
+		INC R0
+		INC R1
+		DEC R3
+		BRNZ escriure_adeu
+
+JMP -1	
+FIN
