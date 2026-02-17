@@ -57,7 +57,7 @@ Open the `VonNeumann.exe` application and the corresponding shell to the path of
 
 ### 2. Compile
   ```bash 
-  type > Ensambla src\ec2_pra2.ens
+  Ensambla.exe src\ec2_pra_2.ens
   ```
 
 ### 3. Run
