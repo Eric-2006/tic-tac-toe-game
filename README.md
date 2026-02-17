@@ -66,7 +66,7 @@ Open the `VonNeumann.exe` application and the corresponding shell to the simulad
 * To stop the program navigare to `Ejecución -> Parar`.
 
 ## Technical Note (Language)
-The source code, variables names, internal comments and output console prints are written in **Catalan**, as it was an academic project for the University of Lleida (UdL) as part of the **Computer Science degree (Estructura de Computadors II, 2024-2025)**. This documentation is provided in English so more people can understand the project.
+The source code, variable names, internal comments and output console prints are written in **Catalan**, as it was an academic project for the University of Lleida (UdL) as part of the **Computer Science degree (Estructura de Computadors II, 2024-2025)**. This documentation is provided in English so more people can understand the project.
 
 ## Credits
 The Von Neumann SImulator was developed in the University of Oviedo by Diego Alonso López under the direction of Manuel Campos López.
