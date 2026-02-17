@@ -42,7 +42,7 @@ This project requires the **Von Neumann Simulator** environment and **Windows OS
 
 Open the `VonNeumann.exe` application and the corresponding shell to the path of simuladorVN file. Do NOT use PowerShell to open the shell, instead use only CMD (type CMD in the Windows browser and go to the path whit `cd C:\path\of\simuladorVN`).
 
-### 1. Connect the Screen and Keyboard
+### 1. Connect the Screen and Keyboard on the simulator
 * **Reserve memory for peripherials:** Click on the **MEMORIA** button (bottom left), select the **Configurar** button and now remove the 32k module below by selecting the cross and clicking on it. Then click the **Aceptar** button.
 * **Keyboard:** Navigate to `Utilidades -> Entrada/Salida -> Conectar Teclado`.
   * Nombre P.: _TECLAT_
