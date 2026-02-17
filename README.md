@@ -11,7 +11,7 @@ The objective of this project is to implement a functional "Tic-Tac-Toe" game by
 The game follows a turn-based system for two players:
 
 1. **Board Setup:** A 3x3 grid is drawn on the screen.
-2. **Player 1 Turn:** The player is prompted to enter a Column and Row. If the position is valid and empty, an **"X"** is printed.
+2. **Player 1 Turn:** The player is prompted to enter a Row and Column. If the position is valid and empty, an **"X"** is printed.
 3. **Player 2 Turn:** Similar to Player 1, the player enters coordinates. If valid, an **"O"** is printed.
 4. **Validation:** The program automatically rejects invalid coordinates or positions that are already occupied, asking for new input.
 
