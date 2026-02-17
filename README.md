@@ -38,19 +38,25 @@ This project requires the **Von Neumann Simulator** environment and **Windows OS
 
 ## How to Run
 
-### 1. Compile
+### 1. Connect the Screen and Keyboard
+* **Reserve memory for peripherials:** Click on the **MEMORIA** button (bottom left), select the **Configurar** button and now remove the 32k module below by selecting the cross and clicking on it.
+* **Keyboard:** Navigate to `Utilidades -> Entrada/Salida -> Conectar Teclado`.
+  * Nombre P.: TECLAT
+  * Dir. Base: B000
+  * Vector Int: 0
+   Click the **Aceptar** button.
+* **Screen:** Navigate to `Utilidades -> Entrada/Salida -> Conectar Pantalla`.
+  * Nombre P.: PANTALLA
+  * Dir. Base: A000
+   Click the **Aceptar** button.
+* If you want to disconnect a peripherial you need to navigate to `Utilidades -> Entrada/Salida -> Desconectar Periférico`, select the corresponent peripherial and click the **Desconectar** button.
+
+### 2. Compile
 Within the simuladorVN file system, execute the following command:
   ```bash 
   type > Ensambla src/ec2_pra2.ens
   ```
-### 2. Connect the Screen and Keyboard
-* **Reserve memory for peripherics:** Click on the **MEMORIA** button (bottom left), select the **Configurar** button and now remove the 32k module below by selecting the cross and clicking on it.
-* **Keyboard:** Navigate to `Utilidades -> Entrada/Salida -> Conectar Teclado`.
-  * Nombre P.: TECLAT
-  * Dir. Base B000
-* **Screen:** Navigate to `Utilidades -> Entrada/Salida -> Conectar Pantalla`.
-  * Nombre P.: PANTALLA
-  * Dir. Base A000
+
 ### 3. Run
 * Navigate to `Archivo -> Abrir` and select the generated `ec2_pra2.eje` file.
 * Then navigate to `Ejecución -> Run
