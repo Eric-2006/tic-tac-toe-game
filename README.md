@@ -32,6 +32,8 @@ The game uses a specific numerical logic to determine the winner based on the th
 * **Architecture:** Von Neumann Simulator.
 * **Virtual Peripherials:** Virtual Screen and Keyboard of the Von Neumann Simulator.
 
+**Note:** Most of the Von Neumann Simulator interface is in **Spanish** as it was developed for a final project in the University of Oviedo (Spain).
+
 ## Dependencies
 
 This project requires the **Von Neumann Simulator** environment and **Windows OS** to assemble and execute the source code.
@@ -41,14 +43,14 @@ This project requires the **Von Neumann Simulator** environment and **Windows OS
 ### 1. Connect the Screen and Keyboard
 * **Reserve memory for peripherials:** Click on the **MEMORIA** button (bottom left), select the **Configurar** button and now remove the 32k module below by selecting the cross and clicking on it.
 * **Keyboard:** Navigate to `Utilidades -> Entrada/Salida -> Conectar Teclado`.
-  * Nombre P.: TECLAT
-  * Dir. Base: B000
-  * Vector Int: 0
-   Click the **Aceptar** button.
+  * Nombre P.: _TECLAT_
+  * Dir. Base: _B000_
+  * Vector Int: _0_
+  * Click the **Aceptar** button.
 * **Screen:** Navigate to `Utilidades -> Entrada/Salida -> Conectar Pantalla`.
-  * Nombre P.: PANTALLA
-  * Dir. Base: A000
-   Click the **Aceptar** button.
+  * Nombre P.: _PANTALLA_
+  * Dir. Base: _A000_
+  * Click the **Aceptar** button.
 * If you want to disconnect a peripherial you need to navigate to `Utilidades -> Entrada/Salida -> Desconectar Periférico`, select the corresponent peripherial and click the **Desconectar** button.
 
 ### 2. Compile
@@ -59,7 +61,7 @@ Within the simuladorVN file system, execute the following command:
 
 ### 3. Run
 * Navigate to `Archivo -> Abrir` and select the generated `ec2_pra2.eje` file.
-* Then navigate to `Ejecución -> Run
+* Then navigate to `Ejecución -> Run`.
 
 ## Technical Note (Language)
 The source code, variables names, internal comments and output console prints are written in **Catalan**, as it was an academic project for the University of Lleida (UdL) as part of the **Computer Science degree (Estructura de Computadors II, 2024-2025)**. This documentation is provided in English for universal portfolio visibility.
